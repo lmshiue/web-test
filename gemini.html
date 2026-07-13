@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/jikiloqili/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World - 歡迎來到我的網頁</title>
+    <!-- 引入 Tailwind CSS，避免使用相對路徑的 CSS 檔案 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 額外微調，確保背景平滑漸變且不可選取部分 UI 元素 */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-tr from-indigo-100 via-purple-50 to-pink-100 min-h-screen flex flex-col justify-between antialiased selection:bg-purple-200">
+
+    <!-- 主要內容區 -->
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+        <div class="max-w-md w-full glass-panel rounded-3xl shadow-2xl p-8 md:p-10 text-center float-animation transition-all duration-300 hover:shadow-purple-200 hover:shadow-3xl">
+            
+            <!-- 裝飾用 SVG 標誌 (無外部圖片路徑) -->
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+            </div>
+
+            <!-- 標題與內文 -->
+            <h1 id="hello-text" class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-3 transition-all duration-300">
+                Hello, World!
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg mb-8 leading-relaxed font-medium">
+                這是一個完全獨立、無相對路徑的網頁。<br>您已成功將其部署到您的專屬空間！
+            </p>
+
+            <!-- 互動式按鈕區 -->
+            <div class="space-y-3">
+                <button onclick="changeLanguage()" class="w-full py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md shadow-indigo-200 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 7.31 16.5 3 19" />
+                    </svg>
+                    切換其他語言問候語
+                </button>
+                
+                <button onclick="copyStatusLink()" class="w-full py-3 px-6 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-200 transition-all duration-200 flex items-center justify-center gap-2 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    複製本頁狀態訊息
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 頁尾宣告 -->
+    <footer class="text-center py-6 text-xs text-gray-500 font-medium">
+        <p>© 2026 您的專屬首頁. 100% 獨立無外部依賴.</p>
+    </footer>
+
+    <!-- 自訂 Toast 訊息提示元件 (無 alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        // 準備多國語言版本的 Hello World
+        const greetings = [
+            { text: "Hello, World!", lang: "English" },
+            { text: "你好，世界！", lang: "繁體中文" },
+            { text: "こんにちは、世界！", lang: "日本語" },
+            { text: "Bonjour le monde!", lang: "Français" },
+            { text: "¡Hola Mundo!", lang: "Español" },
+            { text: "Hallo Welt!", lang: "Deutsch" },
+            { text: "Ciao mondo!", lang: "Italiano" }
+        ];
+        
+        let currentIdx = 0;
+
+        // 切換語言函數
+        function changeLanguage() {
+            currentIdx = (currentIdx + 1) % greetings.length;
+            const helloTextEl = document.getElementById('hello-text');
+            
+            // 轉化過渡動畫
+            helloTextEl.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                helloTextEl.textContent = greetings[currentIdx].text;
+                helloTextEl.classList.remove('opacity-0', 'scale-95');
+                showToast(`已切換為 ${greetings[currentIdx].lang} 問候語！`);
+            }, 150);
+        }
+
+        // 安全複製文字至剪貼簿
+        function copyStatusLink() {
+            const currentGreeting = greetings[currentIdx].text;
+            const textToCopy = `這是我剛部署好的網頁問候語：【${currentGreeting}】歡迎參觀！`;
+            
+            // 建立臨時文本框以確保相容性
+            const tempInput = document.createElement("textarea");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("複製成功！可以分享給朋友囉 🎉");
+                } else {
+                    showToast("複製失敗，請手動複製");
+                }
+            } catch (err) {
+                showToast("瀏覽器暫不支援複製");
+            }
+            
+            document.body.removeChild(tempInput);
+        }
+
+        // 自製 Toast 提示框
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = "flex items-center gap-2 bg-gray-900 text-white text-sm py-3 px-5 rounded-xl shadow-xl transition-all duration-300 transform translate-y-5 opacity-0";
+            toast.innerHTML = `
+                <span>✨</span>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // 進場動畫
+            setTimeout(() => {
+                toast.classList.remove('translate-y-5', 'opacity-0');
+            }, 10);
+            
+            // 退場動畫與清除元素
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
