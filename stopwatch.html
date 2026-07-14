@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/xesekemora/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網路碼錶 | 線上時間測量</title>
+    <!-- 引入 FontAwesome 圖標庫與現代字型 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================= 1. 色彩計畫與基本設定 ================= */
+        :root {
+            --bg-gradient-start: #F1F5F9;
+            --bg-gradient-end: #F8FAFC;
+            --navbar-bg: #1E293B;
+            --card-bg: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-light: #E2E8F0;
+            
+            /* 按鈕色彩 */
+            --color-green: #10B981;
+            --color-green-hover: #059669;
+            --color-blue: #3B82F6;
+            --color-blue-hover: #2563EB;
+            --color-red: #EF4444;
+            --color-red-hover: #DC2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ================= 2. 導覽列設計 ================= */
+        .navbar {
+            background-color: var(--navbar-bg);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .nav-logo i {
+            font-size: 24px;
+            background: linear-gradient(135deg, #60A5FA, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #FFFFFF;
+        }
+
+        /* ================= 3. 主卡片容器 ================= */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* 裝飾背景星芒 (參考 Gemini-碼錶.png 元素) */
+        .deco-sparkle {
+            position: absolute;
+            bottom: 10%;
+            right: 15%;
+            color: #CBD5E1;
+            font-size: 40px;
+            opacity: 0.5;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .stopwatch-card {
+            background-color: var(--card-bg);
+            width: 440px;
+            border-radius: 32px; /* 大圓角設定 */
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08); /* 極輕柔落實陰影 */
+            position: relative;
+            overflow: hidden;
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 頂部裝飾邊框 - 漸層裝飾條 */
+        .stopwatch-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #3B82F6, #60A5FA);
+        }
+
+        /* ================= 4. 圓形碼錶外圍與刻度 ================= */
+        .dial-container {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 進度條外圈 (SVG) */
+        .progress-ring-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg); /* 從正上方開始繪製進度 */
+        }
+
+        .progress-ring-circle-bg {
+            fill: none;
+            stroke: var(--border-light);
+            stroke-width: 6;
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: #2563EB;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 816.8; /* 2 * PI * r (r=130) */
+            stroke-dashoffset: 816.8;
+            transition: stroke-dashoffset 0.05s linear;
+        }
+
+        /* 內圈帶有細緻的刻度盤與淡灰色圓形邊框 */
+        .inner-dial {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 1px solid var(--border-light);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF;
+            box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.02);
+        }
+
+        /* 刻度刻痕 */
+        .ticks-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .tick {
+            position: absolute;
+            width: 2px;
+            height: 8px;
+            background-color: #CBD5E1;
+            left: calc(50% - 1px);
+            top: 8px;
+            transform-origin: 50% 112px; /* 轉動中心點 */
+        }
+
+        .tick.major {
+            height: 14px;
+            background-color: #94A3B8;
+        }
+
+        /* 內圈時間文字與亞標籤 */
+        .dial-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+            z-index: 2;
+        }
+
+        .dial-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 1px;
+            z-index: 2;
+        }
+
+        /* 百分比提示標籤 (右下角 100% 標籤) */
+        .percentage-tag {
+            position: absolute;
+            bottom: 20px;
+            right: 0px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            background-color: #F1F5F9;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        /* 下方的大型數位顯示器 */
+        .digital-time-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 28px;
+            letter-spacing: -1px;
+        }
+
+        /* ================= 5. 按鈕設計 ================= */
+        .buttons-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            flex: 1;
+            height: 48px;
+            border: none;
+            border-radius: 12px; /* 中等圓角 */
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        /* 開始按鈕 (綠) */
+        .btn-start {
+            background-color: var(--color-green);
+        }
+        .btn-start:hover:not(:disabled) {
+            background-color: var(--color-green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+        }
+
+        /* 暫停按鈕 (藍) */
+        .btn-pause {
+            background-color: var(--color-blue);
+        }
+        .btn-pause:hover:not(:disabled) {
+            background-color: var(--color-blue-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+        }
+
+        /* 重設按鈕 (紅) */
+        .btn-reset {
+            background-color: var(--color-red);
+        }
+        .btn-reset:hover:not(:disabled) {
+            background-color: var(--color-red-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+        }
+
+        /* 禁用狀態 */
+        .btn:disabled {
+            background-color: #E2E8F0 !important;
+            color: #94A3B8 !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            opacity: 0.7;
+        }
+
+        /* ================= 6. 紀錄面板 (Lap records) ================= */
+        .records-panel {
+            width: 100%;
+            border-top: 1px solid var(--border-light);
+            padding-top: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .records-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .records-list {
+            width: 100%;
+            max-height: 110px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            list-style: none;
+            padding-right: 4px;
+        }
+
+        /* 美化滾動條 */
+        .records-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .records-list::-webkit-scrollbar-thumb {
+            background-color: #CBD5E1;
+            border-radius: 4px;
+        }
+
+        .record-item {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #F8FAFC;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .record-item span {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 導覽列 -->
+    <nav class="navbar">
+        <a href="#" class="nav-logo">
+            <i class="fa-solid fa-circle-notch fa-spin-slow"></i>
+            <span>網路碼錶 | 線上時間測量</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#" class="active">首頁</a></li>
+            <li><a href="#">功能</a></li>
+            <li><a href="#">關於</a></li>
+            <li><a href="#">聯繫</a></li>
+        </ul>
+    </nav>
+
+    <!-- 主要內容區 -->
+    <main class="main-container">
+        <!-- 裝飾背景星芒 -->
+        <i class="fa-solid fa-sparkles deco-sparkle"></i>
+
+        <!-- 碼錶卡片 -->
+        <div class="stopwatch-card">
+            
+            <!-- 圓形刻度盤與圓環 -->
+            <div class="dial-container">
+                <!-- SVG 動態進度圓環 -->
+                <svg class="progress-ring-svg" width="280" height="280">
+                    <circle class="progress-ring-circle-bg" cx="140" cy="140" r="130"></circle>
+                    <circle id="progress-bar" class="progress-ring-circle" cx="140" cy="140" r="130"></circle>
+                </svg>
+
+                <!-- 內部盤面 (刻度與分秒) -->
+                <div class="inner-dial">
+                    <!-- 動態生成 60 刻度 -->
+                    <div id="ticks-plate" class="ticks-container"></div>
+                    
+                    <!-- 盤面中央時間 -->
+                    <div id="dial-time-text" class="dial-time">00:00.00</div>
+                    <div class="dial-label">分鐘. 秒. 毫秒</div>
+                </div>
+
+                <!-- 100% 進度指示 -->
+                <div id="percentage-indicator" class="percentage-tag">0%</div>
+            </div>
+
+            <!-- 下方大字顯示 (小時:分鐘:秒) -->
+            <div id="digital-time-text" class="digital-time-display">00:00:00</div>
+
+            <!-- 操作按鈕組 -->
+            <div class="buttons-group">
+                <button id="start-btn" class="btn btn-start">
+                    <i class="fa-solid fa-play"></i>
+                    <span id="start-btn-text">開始</span>
+                </button>
+                <button id="pause-btn" class="btn btn-pause" disabled>
+                    <i class="fa-solid fa-pause"></i>
+                    <span>暫停</span>
+                </button>
+                <button id="reset-btn" class="btn btn-reset" disabled>
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>重設</span>
+                </button>
+            </div>
+
+            <!-- 紀錄區面板 -->
+            <div class="records-panel">
+                <div class="records-title">紀錄</div>
+                <ul id="records-list" class="records-list">
+                    <!-- 紀錄清單會動態加入此處 -->
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 邏輯引擎 -->
+    <script>
+        // DOM 元件取得
+        const startBtn = document.getElementById('start-btn');
+        const startBtnText = document.getElementById('start-btn-text');
+        const startBtnIcon = startBtn.querySelector('i');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        const dialTimeText = document.getElementById('dial-time-text');
+        const digitalTimeText = document.getElementById('digital-time-text');
+        const progressBar = document.getElementById('progress-bar');
+        const percentageIndicator = document.getElementById('percentage-indicator');
+        const ticksPlate = document.getElementById('ticks-plate');
+        const recordsList = document.getElementById('records-list');
+
+        // 初始化 60 刻度盤面
+        function buildDialTicks() {
+            ticksPlate.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const tickEl = document.createElement('div');
+                tickEl.className = 'tick';
+                if (i % 5 === 0) {
+                    tickEl.classList.add('major'); // 每 5 格一個粗長大刻度
+                }
+                tickEl.style.transform = `rotate(${i * 6}deg)`;
+                ticksPlate.appendChild(tickEl);
+            }
+        }
+        buildDialTicks();
+
+        // 碼錶底層變數
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerRequestFrame = null;
+        let lapCounter = 0;
+
+        // 計算並更新進度條與百分比
+        // progress-ring-circle 半徑是 130，周長是 2 * PI * 130 = 816.8
+        const strokeCircumference = 816.8;
+        
+        function updateProgressRing(ms) {
+            // 以 60 秒為一圈 (60000 毫秒)
+            const cycleMs = 60000;
+            const progressRatio = (ms % cycleMs) / cycleMs;
+            const offset = strokeCircumference - (progressRatio * strokeCircumference);
+            progressBar.style.strokeDashoffset = offset;
+            
+            // 計算百分比
+            const percentage = Math.floor(progressRatio * 100);
+            percentageIndicator.textContent = `${percentage}%`;
+        }
+
+        // 格式化時間：分鐘.秒.毫秒 (用於刻度盤中心)
+        function formatDialTime(totalMs) {
+            const minutes = Math.floor(totalMs / 60000);
+            const seconds = Math.floor((totalMs % 60000) / 1000);
+            const centiseconds = Math.floor((totalMs % 1000) / 10);
+
+            const pad = (num) => num.toString().padStart(2, '0');
+            return `${pad(minutes)}:${pad(seconds)}.${pad(centiseconds)}`;
+        }
+
+        // 格式化時間：小時:分鐘:秒 (用於下方數位顯示)
+        function formatDigitalTime(totalMs) {
+            const hours = Math.floor(totalMs / 3600000);
+            const minutes = Math.floor((totalMs % 3600000) / 60000);
+            const seconds = Math.floor((totalMs % 60000) / 1000);
+
+            const pad = (num) => num.toString().padStart(2, '0');
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        // 每一幀的渲染更新
+        function tick() {
+            elapsedTime = Date.now() - startTime;
+            
+            dialTimeText.textContent = formatDialTime(elapsedTime);
+            digitalTimeText.textContent = formatDigitalTime(elapsedTime);
+            updateProgressRing(elapsedTime);
+            
+            timerRequestFrame = requestAnimationFrame(tick);
+        }
+
+        /* ================= 狀態機邏輯切換 ================= */
+
+        // [按鈕：開始 / 繼續]
+        startBtn.addEventListener('click', () => {
+            // 切換按鈕狀態
+            startBtnText.textContent = '繼續';
+            startBtnIcon.className = 'fa-solid fa-play'; // 保持播放形狀，但是變灰/Disabled
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resetBtn.disabled = false;
+
+            // 開始計時 (使用效能更好的 requestAnimationFrame)
+            startTime = Date.now() - elapsedTime;
+            timerRequestFrame = requestAnimationFrame(tick);
+        });
+
+        // [按鈕：暫停]
+        pauseBtn.addEventListener('click', () => {
+            // 停止動畫格更新
+            cancelAnimationFrame(timerRequestFrame);
+
+            // 切換按鈕狀態
+            pauseBtn.disabled = true;
+            startBtn.disabled = false;
+
+            // 記錄當前圈數
+            lapCounter++;
+            const newRecord = document.createElement('li');
+            newRecord.className = 'record-item';
+            newRecord.innerHTML = `<span>圈 ${lapCounter}:</span> ${formatDialTime(elapsedTime)}`;
+            recordsList.insertBefore(newRecord, recordsList.firstChild); // 最新紀錄排在最上面
+        });
+
+        // [按鈕：重設]
+        resetBtn.addEventListener('click', () => {
+            // 停止計時並歸零數據
+            cancelAnimationFrame(timerRequestFrame);
+            elapsedTime = 0;
+            lapCounter = 0;
+
+            // 還原盤面與進度條
+            dialTimeText.textContent = "00:00.00";
+            digitalTimeText.textContent = "00:00:00";
+            progressBar.style.strokeDashoffset = strokeCircumference;
+            percentageIndicator.textContent = "0%";
+            recordsList.innerHTML = ''; // 清空紀錄面板
+
+            // 切換按鈕狀態回到最始狀態 A
+            startBtnText.textContent = '開始';
+            startBtnIcon.className = 'fa-solid fa-play';
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
