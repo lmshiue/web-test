@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/culisaweni/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Realtime Database 測試</title>
+</head>
+<body>
+
+    <!-- 輸入區域 -->
+    <div>
+        <textarea id="messageInput" rows="5" cols="40" placeholder="請輸入內容..."></textarea>
+    </div>
+    
+    <div>
+        <button id="submitBtn" disabled>送出</button>
+        <button id="clearBtn" disabled>重填</button>
+    </div>
+
+    <hr>
+
+    <!-- 資料顯示清單 -->
+    <h3>已儲存的資料清單</h3>
+    <ul id="dataList"></ul>
+
+    <!-- 載入 Firebase SDK (使用 v10+ 的原生 ES Modules 寫法) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // 1. 請在此處替換成你的 Firebase 專案設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyCapd7YUoXYpmG2aY4pEvjnc6rsxro-LtI",
+  authDomain: "test-3d50f.firebaseapp.com",
+  databaseURL: "https://test-3d50f-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "test-3d50f",
+  storageBucket: "test-3d50f.firebasestorage.app",
+  messagingSenderId: "377665915254",
+  appId: "1:377665915254:web:9c7617a2462628c091d257",
+  measurementId: "G-J9K98LX7PC"
+        };
+
+        // 初始化 Firebase App
+        const app = initializeApp(firebaseConfig);
+
+        // 2. 初始化 App Check (搭配你已經設定好的 reCAPTCHA v3)
+        // 注意：在本地測試環境 (localhost) 下，你可能需要開啟 debug 模式，
+        // 這裡先按照你正式環境的 reCAPTCHA v3 Site Key 來撰寫。
+        initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LcmZlQtAAAAAPKlaNCi2uMK9Q0f9mnlf-zIABjW'),
+            isTokenAutoRefreshEnabled: true
+        });
+
+        // 初始化 Realtime Database
+        const db = getDatabase(app);
+        // 設定資料存取的路徑名稱（例如存到 "messages" 下）
+        const dbRef = ref(db, 'messages');
+
+        // 取得 DOM 元素
+        const messageInput = document.getElementById('messageInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const dataList = document.getElementById('dataList');
+
+        // 監聽輸入欄位，控管按鈕的啟用/停用狀態
+        messageInput.addEventListener('input', () => {
+            const hasContent = messageInput.value.trim().length > 0;
+            submitBtn.disabled = !hasContent;
+            clearBtn.disabled = !hasContent;
+        });
+
+        // 「送出」按鈕點擊事件：將資料寫入 Realtime Database
+        submitBtn.addEventListener('click', () => {
+            const text = messageInput.value.trim();
+            if (text) {
+                // 使用 push 產生唯一 ID 並寫入資料與時間戳記
+                push(dbRef, {
+                    content: text,
+                    timestamp: Date.now()
+                })
+                .then(() => {
+                    // 成功送出後，清空輸入框並停用按鈕
+                    messageInput.value = '';
+                    submitBtn.disabled = true;
+                    clearBtn.disabled = true;
+                })
+                .catch((error) => {
+                    console.error("資料儲存失敗，請檢查 App Check 或權限設定:", error);
+                    alert("儲存失敗，詳細原因請查看主控台。");
+                });
+            }
+        });
+
+        // 「重填」按鈕點擊事件：清空欄位並停用按鈕
+        clearBtn.addEventListener('click', () => {
+            messageInput.value = '';
+            submitBtn.disabled = true;
+            clearBtn.disabled = true;
+        });
+
+        // 即時監聽資料庫變更，並渲染到下方的清單中
+        onValue(dbRef, (snapshot) => {
+            // 先清空目前的 HTML 清單
+            dataList.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                
+                // 遍歷所有節點資料
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    const li = document.createElement('li');
+                    
+                    // 簡單格式化時間顯示
+                    const date = new Date(item.timestamp).toLocaleString();
+                    li.textContent = `[${date}] ${item.content}`;
+                    
+                    // 新的資料放最上面
+                    dataList.insertBefore(li, dataList.firstChild);
+                });
+            } else {
+                dataList.innerHTML = '<li>目前沒有任何資料</li>';
+            }
+        });
+    </script>
+</body>
+</html>
