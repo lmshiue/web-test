@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/jijohirobe/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="zh-TW" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統登入與註冊中心</title>
+    <!-- 引入 Tailwind CSS 進行質感設計 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google 字型 Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        /* 自訂細緻動畫 */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 背景流光效果 */
+        .glow-orb {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(0,0,0,0) 70%);
+            filter: blur(40px);
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center overflow-x-hidden relative text-slate-200 px-4">
+
+    <!-- 炫光背景裝飾 -->
+    <div class="glow-orb -top-40 -left-40"></div>
+    <div class="glow-orb -bottom-40 -right-40"></div>
+
+    <!-- 全域 Toast 訊息容器 -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
+
+    <!-- 頂部運行模式提示條 -->
+    <div id="mode-badge" class="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 transition-all duration-300">
+        <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2"></span>
+        </span>
+        <span id="mode-text">正在偵測系統環境...</span>
+    </div>
+
+    <!-- 主容器 -->
+    <main class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl p-8 z-10 transition-all duration-300">
+        
+        <!-- 標題與 LOGO 區域 -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 text-white text-2xl font-bold shadow-lg shadow-indigo-500/20 mb-4">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 id="portal-title" class="text-2xl font-bold text-white tracking-tight">登入您的帳戶</h2>
+            <p id="portal-subtitle" class="text-slate-400 text-sm mt-1">請輸入您的電子信箱與密碼</p>
+        </div>
+
+        <!-- 1. 登入畫面 (Login View) -->
+        <section id="view-login" class="fade-in space-y-6">
+            <form id="form-login" class="space-y-4" onsubmit="handleEmailLogin(event)">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-regular fa-envelope"></i>
+                        </span>
+                        <input type="email" id="login-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">密碼</label>
+                        <button type="button" onclick="switchView('forgot')" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition">忘記密碼？</button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                            <i class="fa-regular fa-eye" id="login-password-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="login-remember" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-900 focus:ring-2">
+                    <label for="login-remember" class="ml-2 text-xs text-slate-400">記住我的登入資訊</label>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                    <span id="btn-login-text">登入系統</span>
+                    <i id="btn-login-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
+                </button>
+            </form>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-500">或使用其他方式登入</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-200 hover:text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-3 text-sm">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                </svg>
+                <span>使用 Google 帳戶登入</span>
+            </button>
+
+            <div class="text-center">
+                <p class="text-sm text-slate-400">
+                    還沒有帳戶嗎？
+                    <button onclick="switchView('register')" class="text-indigo-400 hover:text-indigo-300 font-medium transition ml-1">註冊新帳號</button>
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. 註冊畫面 (Register View) -->
+        <section id="view-register" class="fade-in space-y-6 hidden">
+            <form id="form-register" class="space-y-4" onsubmit="handleEmailRegister(event)">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">您的姓名</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-regular fa-user"></i>
+                        </span>
+                        <input type="text" id="register-name" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="王小明">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-regular fa-envelope"></i>
+                        </span>
+                        <input type="email" id="register-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">設定密碼</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="register-password" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="至少 6 位字元">
+                        <button type="button" onclick="togglePasswordVisibility('register-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                            <i class="fa-regular fa-eye" id="register-password-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">確認密碼</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="register-confirm" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="再次輸入密碼">
+                        <button type="button" onclick="togglePasswordVisibility('register-confirm')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                            <i class="fa-regular fa-eye" id="register-confirm-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                    <span id="btn-register-text">建立全新帳戶</span>
+                    <i id="btn-register-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
+                </button>
+            </form>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-500">或快速註冊</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-200 hover:text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-3 text-sm">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                </svg>
+                <span>使用 Google 快速註冊</span>
+            </button>
+
+            <div class="text-center">
+                <p class="text-sm text-slate-400">
+                    已經有帳戶了？
+                    <button onclick="switchView('login')" class="text-indigo-400 hover:text-indigo-300 font-medium transition ml-1">立即登入</button>
+                </p>
+            </div>
+        </section>
+
+        <!-- 3. 忘記密碼畫面 (Forgot Password View) -->
+        <section id="view-forgot" class="fade-in space-y-6 hidden">
+            <p class="text-slate-400 text-sm text-center">
+                請輸入您註冊時填寫的電子信箱，系統將發送一封密碼重設鏈接至您的信箱。
+            </p>
+
+            <form id="form-forgot" class="space-y-4" onsubmit="handleForgotPassword(event)">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-regular fa-envelope"></i>
+                        </span>
+                        <input type="email" id="forgot-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                    <span id="btn-forgot-text">發送重設郵件</span>
+                    <i id="btn-forgot-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
+                </button>
+            </form>
+
+            <div class="text-center">
+                <button onclick="switchView('login')" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-arrow-left"></i> 返回登入畫面
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. 信箱驗證待定畫面 (Verification Pending View) -->
+        <section id="view-verify-pending" class="fade-in text-center space-y-6 hidden">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-500/10 text-yellow-500 text-3xl mb-2">
+                <i class="fa-regular fa-envelope-open"></i>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="text-lg font-semibold text-white">驗證信件已寄出</h3>
+                <p class="text-sm text-slate-400 leading-relaxed px-2">
+                    我們已發送一封驗證電子郵件至：<br>
+                    <strong id="verify-email-display" class="text-indigo-300"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80f5f3e5f2c0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></strong>
+                </p>
+                <p class="text-xs text-yellow-500/90 bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2.5 mt-2">
+                    請點選信中的連結以完成啟用。若已完成，請點選下方按鈕重新整理狀態。
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="checkEmailVerificationStatus()" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-rotate"></i> 我已完成驗證，前往登入
+                </button>
+
+                <button onclick="resendVerificationEmail()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-lg transition text-sm">
+                    重新發送驗證信件
+                </button>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="handleLogout(true)" class="text-sm text-slate-400 hover:text-slate-300 font-medium transition flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> 登出並返回
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. 登入成功畫面 (Dashboard View) -->
+        <section id="view-dashboard" class="fade-in space-y-6 hidden">
+            <!-- 成功提示橫幅 -->
+            <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-start gap-3">
+                <div class="text-emerald-500 mt-0.5"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                    <h4 class="text-sm font-semibold text-emerald-400">登入驗證成功</h4>
+                    <p class="text-xs text-slate-400 mt-0.5">歡迎使用本系統，您目前已安全登入！</p>
+                </div>
+            </div>
+
+            <!-- 用戶資訊卡片 -->
+            <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-5 space-y-4">
+                <div class="flex items-center gap-4">
+                    <div id="user-avatar-container" class="relative">
+                        <img id="user-avatar" src="https://placehold.co/100x100/6366f1/ffffff?text=U" alt="Avatar" class="w-14 h-14 rounded-full border border-slate-800 object-cover">
+                        <div id="user-status-dot" class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-slate-900 bg-emerald-500"></div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <h4 id="user-display-name" class="font-bold text-white text-base">用戶姓名</h4>
+                            <span id="user-verified-badge" class="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-[10px] font-semibold rounded-md">已驗證</span>
+                        </div>
+                        <p id="user-email-text" class="text-xs text-slate-400"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="83f6f0e6f1c3e6fbe2eef3efe6ade0ecee">[email&#160;protected]</a></p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-3 space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">登入方式</span>
+                        <span id="user-provider-badge" class="font-medium text-slate-300">電子信箱</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">唯一用戶碼 (UID)</span>
+                        <span id="user-uid-text" class="font-mono text-slate-400 text-[11px] truncate max-w-[180px]">xxxxxxxx</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="handleLogout()" class="w-full bg-rose-600/10 hover:bg-rose-600/20 border border-rose-500/20 text-rose-400 font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-sm">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> 安全登出系統
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Firebase 與應用程式邏輯區 -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            sendPasswordResetEmail,
+            sendEmailVerification,
+            signInWithPopup,
+            GoogleAuthProvider,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // ==========================================
+        // Firebase 設定區 (供您填入真實資料)
+        // ==========================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyCRG5iqTUDUgNT7FxDacn0Uc2O5R0vsMc4",
+          authDomain: "ctcn-login.firebaseapp.com",
+          projectId: "ctcn-login",
+          storageBucket: "ctcn-login.firebasestorage.app",
+          messagingSenderId: "648233489932",
+          appId: "1:648233489932:web:b13b15eefe50ba18758029"
+        };
+
+        // ==========================================
+        // 核心狀態變數
+        // ==========================================
+        let isDemoMode = false;
+        let auth = null;
+        let app = null;
+
+        // ==========================================
+        // 1. 初始化與環境偵測
+        // ==========================================
+        window.addEventListener('load', () => {
+            // 判斷是否為預設的 Demo / Mock 設定
+            if (firebaseConfig.apiKey.includes("YOUR_API_KEY") || firebaseConfig.projectId.includes("YOUR_PROJECT_ID")) {
+                enableDemoMode();
+            } else {
+                try {
+                    // 初始化真實的 Firebase App
+                    app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    enableRealMode();
+                    
+                    // 監聽 Firebase 登入狀態
+                    onAuthStateChanged(auth, (user) => {
+                        handleAuthStateChanged(user);
+                    });
+                } catch (error) {
+                    console.error("Firebase 初始化失敗，將自動降級至 Demo 模擬模式：", error);
+                    showToast("Firebase 初始化出錯，切換至 Demo 模式", "error");
+                    enableDemoMode();
+                }
+            }
+        });
+
+        // 啟用 Demo 模擬模式
+        function enableDemoMode() {
+            isDemoMode = true;
+            const badge = document.getElementById('mode-badge');
+            const badgeText = document.getElementById('mode-text');
+            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20";
+            badgeText.textContent = "Demo 模擬模式 (非真實 Firebase)";
+            showToast("已切換至 Demo 模擬模式！", "info");
+
+            // Demo 模式預設狀態：無用戶登入
+            initializeDemoMock();
+        }
+
+        // 啟用真實 Firebase 運作模式
+        function enableRealMode() {
+            isDemoMode = false;
+            const badge = document.getElementById('mode-badge');
+            const badgeText = document.getElementById('mode-text');
+            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            badgeText.textContent = "已連線至您的 Firebase 服務";
+            showToast("成功連線至 Firebase Authentication！", "success");
+        }
+
+        // ==========================================
+        // 2. Demo 模擬數據庫與邏輯
+        // ==========================================
+        const demoStorageKey = 'mock_firebase_auth_users';
+        let currentDemoUser = null;
+
+        function initializeDemoMock() {
+            // 初始化模擬資料庫 (本機 localStorage)
+            if (!localStorage.getItem(demoStorageKey)) {
+                // 預先建立一個展示帳號
+                const defaultUsers = [
+                    {
+                        email: "demo@example.com",
+                        password: "password123",
+                        displayName: "展示之星",
+                        emailVerified: true,
+                        uid: "demo-uid-99999",
+                        photoURL: "https://placehold.co/100x100/6366f1/ffffff?text=D",
+                        providerId: "password"
+                    }
+                ];
+                localStorage.setItem(demoStorageKey, JSON.stringify(defaultUsers));
+            }
+            
+            // 讀取可能儲存的 Session 狀態
+            const sessionUser = sessionStorage.getItem('mock_session_user');
+            if (sessionUser) {
+                currentDemoUser = JSON.parse(sessionUser);
+                handleAuthStateChanged(currentDemoUser);
+            } else {
+                switchView('login');
+            }
+        }
+
+        // ==========================================
+        // 3. 核心驗證業務邏輯 (支援真實與 Demo 雙模)
+        // ==========================================
+
+        // 【電子信箱註冊】
+        window.handleEmailRegister = async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+
+            // 基本前端安全驗證
+            if (password.length < 6) {
+                showToast("密碼強度不足：長度至少需要 6 個字元！", "warning");
+                return;
+            }
+            if (password !== confirm) {
+                showToast("密碼驗證錯誤：兩次輸入的密碼不一致！", "error");
+                return;
+            }
+
+            setLoading('register', true);
+
+            if (isDemoMode) {
+                // 模擬註冊邏輯
+                setTimeout(() => {
+                    let users = JSON.parse(localStorage.getItem(demoStorageKey) || "[]");
+                    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                        showToast("此信箱已被其他帳戶註冊使用！", "error");
+                        setLoading('register', false);
+                        return;
+                    }
+
+                    // 建立新模擬用戶
+                    const newUser = {
+                        email: email,
+                        password: password,
+                        displayName: name,
+                        emailVerified: false, // 電子信箱預設未驗證
+                        uid: "mock-uid-" + Math.random().toString(36).substr(2, 9),
+                        photoURL: `https://placehold.co/100x100/8b5cf6/ffffff?text=${encodeURIComponent(name.charAt(0).toUpperCase())}`,
+                        providerId: "password"
+                    };
+
+                    users.push(newUser);
+                    localStorage.setItem(demoStorageKey, JSON.stringify(users));
+                    
+                    // 寫入 Session，將其設為當前未驗證登入狀態
+                    currentDemoUser = newUser;
+                    sessionStorage.setItem('mock_session_user', JSON.stringify(currentDemoUser));
+                    
+                    setLoading('register', false);
+                    showToast("註冊成功！已寄出驗證信，請查收。", "success");
+                    handleAuthStateChanged(currentDemoUser);
+                }, 1200);
+
+            } else {
+                // 真實 Firebase 註冊
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    
+                    // 更新用戶檔案姓名
+                    await updateProfile(user, { displayName: name });
+                    
+                    // 發送驗證信
+                    await sendEmailVerification(user);
+                    
+                    showToast("註冊成功，認證郵件已發送！", "success");
+                    setLoading('register', false);
+                    // 註冊後會觸發 onAuthStateChanged
+                } catch (error) {
+                    console.error(error);
+                    setLoading('register', false);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【電子信箱登入】
+        window.handleEmailLogin = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            setLoading('login', true);
+
+            if (isDemoMode) {
+                // 模擬登入
+                setTimeout(() => {
+                    const users = JSON.parse(localStorage.getItem(demoStorageKey) || "[]");
+                    const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+
+                    if (!matchedUser) {
+                        showToast("電子郵件或密碼錯誤！", "error");
+                        setLoading('login', false);
+                        return;
+                    }
+
+                    currentDemoUser = matchedUser;
+                    sessionStorage.setItem('mock_session_user', JSON.stringify(currentDemoUser));
+                    
+                    setLoading('login', false);
+                    showToast("登入成功！歡迎回來", "success");
+                    handleAuthStateChanged(currentDemoUser);
+                }, 1000);
+
+            } else {
+                // 真實 Firebase 登入
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    setLoading('login', false);
+                    showToast("登入成功！", "success");
+                } catch (error) {
+                    console.error(error);
+                    setLoading('login', false);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【Google 驗證 (支援登入與註冊合併)】
+        window.handleGoogleAuth = async function() {
+            if (isDemoMode) {
+                showToast("正在建立 Google 安全連線環境...", "info");
+                setTimeout(() => {
+                    // 模擬隨機 Google 用戶
+                    const mockGoogleUser = {
+                        email: "google.user@gmail.com",
+                        displayName: "谷歌特工",
+                        emailVerified: true, // 第三方登入信箱預設即為已認證
+                        uid: "mock-google-uid-88888",
+                        photoURL: "https://placehold.co/100x100/4285f4/ffffff?text=G",
+                        providerId: "google.com"
+                    };
+
+                    currentDemoUser = mockGoogleUser;
+                    sessionStorage.setItem('mock_session_user', JSON.stringify(currentDemoUser));
+                    
+                    showToast("Google 帳戶登入成功！", "success");
+                    handleAuthStateChanged(mockGoogleUser);
+                }, 1200);
+
+            } else {
+                // 真實 Firebase Google 登入
+                const provider = new GoogleAuthProvider();
+                try {
+                    await signInWithPopup(auth, provider);
+                    showToast("Google 驗證成功！", "success");
+                } catch (error) {
+                    console.error(error);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【忘記密碼發送連結】
+        window.handleForgotPassword = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('forgot-email').value.trim();
+
+            setLoading('forgot', true);
+
+            if (isDemoMode) {
+                setTimeout(() => {
+                    setLoading('forgot', false);
+                    showToast(`重設密碼連結已發送至：${email}！請檢查您的收件匣。`, "success");
+                    switchView('login');
+                }, 1200);
+            } else {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    setLoading('forgot', false);
+                    showToast("重設密碼郵件發送成功，請前往信箱確認！", "success");
+                    switchView('login');
+                } catch (error) {
+                    console.error(error);
+                    setLoading('forgot', false);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【重新發送郵件驗證連結】
+        window.resendVerificationEmail = async function() {
+            if (isDemoMode) {
+                showToast("已成功重發模擬驗證信！請點擊上方按鈕模擬完成認證。", "info");
+            } else {
+                try {
+                    if (auth.currentUser) {
+                        await sendEmailVerification(auth.currentUser);
+                        showToast("驗證信件已重新寄出，請檢查您的信箱！", "success");
+                    } else {
+                        showToast("無效的用戶工作階段，請重新登入！", "error");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【檢查驗證狀態並更新】
+        window.checkEmailVerificationStatus = async function() {
+            if (isDemoMode) {
+                // 模擬驗證：點擊此按鈕直接在資料庫與當前 Session 將該帳號改為已驗證
+                if (currentDemoUser) {
+                    currentDemoUser.emailVerified = true;
+                    sessionStorage.setItem('mock_session_user', JSON.stringify(currentDemoUser));
+                    
+                    // 同步寫入模擬庫
+                    let users = JSON.parse(localStorage.getItem(demoStorageKey) || "[]");
+                    users = users.map(u => u.email.toLowerCase() === currentDemoUser.email.toLowerCase() ? { ...u, emailVerified: true } : u);
+                    localStorage.setItem(demoStorageKey, JSON.stringify(users));
+
+                    showToast("帳戶驗證完成！已為您成功登入。", "success");
+                    handleAuthStateChanged(currentDemoUser);
+                }
+            } else {
+                try {
+                    if (auth.currentUser) {
+                        // 【關鍵細節】Firebase 會快取狀態，必須強制 reload 才能取得最新信箱驗證情形
+                        await auth.currentUser.reload();
+                        const refreshedUser = auth.currentUser;
+                        
+                        if (refreshedUser.emailVerified) {
+                            showToast("認證成功，正在進入系統...", "success");
+                            handleAuthStateChanged(refreshedUser);
+                        } else {
+                            showToast("驗證尚未完成，請先至您的信箱點選啟用連結！", "warning");
+                        }
+                    } else {
+                        showToast("用戶狀態遺失，請返回登入頁面重新操作。", "error");
+                        switchView('login');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    handleFirebaseError(error);
+                }
+            }
+        };
+
+        // 【安全登出】
+        window.handleLogout = async function(isSilent = false) {
+            if (isDemoMode) {
+                currentDemoUser = null;
+                sessionStorage.removeItem('mock_session_user');
+                if (!isSilent) showToast("您已安全登出系統。", "info");
+                handleAuthStateChanged(null);
+            } else {
+                try {
+                    await signOut(auth);
+                    if (!isSilent) showToast("您已安全登出系統。", "info");
+                    // 登出會自動觸發 onAuthStateChanged
+                } catch (error) {
+                    console.error(error);
+                    showToast("登出程序發生未知異常！", "error");
+                }
+            }
+        };
+
+        // ==========================================
+        // 4. 路由與畫面切換管理 (View & Screen Manager)
+        // ==========================================
+        window.switchView = function(targetView) {
+            // 清空所有表單輸入值
+            if (targetView === 'login') {
+                document.getElementById('form-login').reset();
+            } else if (targetView === 'register') {
+                document.getElementById('form-register').reset();
+            } else if (targetView === 'forgot') {
+                document.getElementById('form-forgot').reset();
+            }
+
+            const views = ['login', 'register', 'forgot', 'verify-pending', 'dashboard'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (v === targetView) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            // 根據目標畫面動態微調主卡片標題
+            const pTitle = document.getElementById('portal-title');
+            const pSubtitle = document.getElementById('portal-subtitle');
+
+            switch (targetView) {
+                case 'login':
+                    pTitle.textContent = "登入您的帳戶";
+                    pSubtitle.textContent = "請輸入您的電子信箱與密碼";
+                    break;
+                case 'register':
+                    pTitle.textContent = "建立您的新帳戶";
+                    pSubtitle.textContent = "註冊並獲取您的完整操作權限";
+                    break;
+                case 'forgot':
+                    pTitle.textContent = "重設您的安全密碼";
+                    pSubtitle.textContent = "發送系統安全驗證重設鏈結";
+                    break;
+                case 'verify-pending':
+                    pTitle.textContent = "安全驗證確認中";
+                    pSubtitle.textContent = "啟用您的帳戶以確保帳號安全";
+                    break;
+                case 'dashboard':
+                    pTitle.textContent = "主控台中心";
+                    pSubtitle.textContent = "管理您目前的個人檔案與帳戶設定";
+                    break;
+            }
+        };
+
+        // 登入狀態監聽路由分流 (關鍵路由)
+        function handleAuthStateChanged(user) {
+            if (user) {
+                // 如果用戶使用的是「電子信箱與密碼」註冊，但尚未進行電子郵件驗證，則強制導向驗證等待畫面
+                if (user.providerId === "password" || (user.providerData && user.providerData[0] && user.providerData[0].providerId === "password")) {
+                    if (!user.emailVerified) {
+                        document.getElementById('verify-email-display').textContent = user.email;
+                        switchView('verify-pending');
+                        return;
+                    }
+                }
+
+                // 其餘情況 (Google 登入或信箱已驗證) 直接進入 Dashboard
+                updateDashboardUI(user);
+                switchView('dashboard');
+            } else {
+                // 未登入，回到登入畫面
+                switchView('login');
+            }
+        }
+
+        // 更新 Dashboard 個人資料界面
+        function updateDashboardUI(user) {
+            const avatar = document.getElementById('user-avatar');
+            const nameEl = document.getElementById('user-display-name');
+            const emailEl = document.getElementById('user-email-text');
+            const verifiedBadge = document.getElementById('user-verified-badge');
+            const providerBadge = document.getElementById('user-provider-badge');
+            const uidEl = document.getElementById('user-uid-text');
+
+            // 照片
+            if (user.photoURL) {
+                avatar.src = user.photoURL;
+                avatar.onerror = function() {
+                    avatar.src = `https://placehold.co/100x100/6366f1/ffffff?text=${encodeURIComponent((user.displayName || user.email || 'U').charAt(0).toUpperCase())}`;
+                };
+            } else {
+                avatar.src = `https://placehold.co/100x100/6366f1/ffffff?text=${encodeURIComponent((user.displayName || user.email || 'U').charAt(0).toUpperCase())}`;
+            }
+
+            // 名字
+            nameEl.textContent = user.displayName || "系統新用戶";
+            
+            // 信箱
+            emailEl.textContent = user.email || "無提供電子郵件資訊";
+            
+            // 是否驗證
+            if (user.emailVerified) {
+                verifiedBadge.className = "px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold rounded-md";
+                verifiedBadge.textContent = "已驗證";
+            } else {
+                verifiedBadge.className = "px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[10px] font-semibold rounded-md";
+                verifiedBadge.textContent = "未驗證";
+            }
+
+            // 登入型態與 UID
+            const provId = user.providerId || (user.providerData && user.providerData[0] ? user.providerData[0].providerId : 'password');
+            providerBadge.textContent = provId === 'google.com' ? 'Google 帳戶登入' : '電子信箱與密碼';
+            uidEl.textContent = user.uid;
+        }
+
+        // ==========================================
+        // 5. 使用者體驗與實用小工具 (UX/UI Utilities)
+        // ==========================================
+
+        // 控制按鈕的 Loading 載入動畫
+        function setLoading(formType, isLoading) {
+            const btnText = document.getElementById(`btn-${formType}-text`);
+            const btnSpinner = document.getElementById(`btn-${formType}-spinner`);
+            const buttons = document.querySelectorAll('button, input');
+
+            if (isLoading) {
+                btnSpinner.classList.remove('hidden');
+                if (btnText) btnText.style.opacity = '0.6';
+                // 載入時鎖定所有輸入防點擊
+                buttons.forEach(b => b.disabled = true);
+            } else {
+                btnSpinner.classList.add('hidden');
+                if (btnText) btnText.style.opacity = '1';
+                buttons.forEach(b => b.disabled = false);
+            }
+        }
+
+        // 密碼顯示/隱藏切換
+        window.togglePasswordVisibility = function(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(`${inputId}-eye`);
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.className = "fa-regular fa-eye-slash";
+            } else {
+                input.type = 'password';
+                eyeIcon.className = "fa-regular fa-eye";
+            }
+        };
+
+        // Toast 彈出式客製化訊息通知
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = "fade-in flex items-center gap-3 p-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300";
+            
+            let icon = '';
+            let classes = '';
+            
+            switch (type) {
+                case 'success':
+                    icon = '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>';
+                    classes = 'bg-emerald-950/85 border-emerald-500/30 text-emerald-200';
+                    break;
+                case 'error':
+                    icon = '<i class="fa-solid fa-triangle-exclamation text-rose-400 text-lg"></i>';
+                    classes = 'bg-rose-950/85 border-rose-500/30 text-rose-200';
+                    break;
+                case 'warning':
+                    icon = '<i class="fa-solid fa-circle-exclamation text-yellow-400 text-lg"></i>';
+                    classes = 'bg-yellow-950/85 border-yellow-500/30 text-yellow-200';
+                    break;
+                default:
+                    icon = '<i class="fa-solid fa-circle-info text-blue-400 text-lg"></i>';
+                    classes = 'bg-slate-900/90 border-indigo-500/30 text-indigo-200';
+            }
+            
+            toast.className += ` ${classes}`;
+            toast.innerHTML = `
+                ${icon}
+                <div class="text-xs font-medium flex-1">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // 4.5秒後自動關閉通知
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        };
+
+        // Firebase 專業中文錯誤字典對照表
+        function handleFirebaseError(error) {
+            let errorMsg = "系統發生未知錯誤，請稍後再試。";
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMsg = "輸入的電子郵件格式不正確！";
+                    break;
+                case 'auth/user-disabled':
+                    errorMsg = "該帳戶已被系統停用，請聯絡客服。";
+                    break;
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                    errorMsg = "登入憑證不正確：信箱或密碼輸入錯誤！";
+                    break;
+                case 'auth/email-already-in-use':
+                    errorMsg = "此電子郵件已被註冊，請直接登入！";
+                    break;
+                case 'auth/weak-password':
+                    errorMsg = "密碼安全度不足，至少需填寫 6 位字元！";
+                    break;
+                case 'auth/operation-not-allowed':
+                    errorMsg = "系統尚未開啟此項登入/註冊機制，請檢查後台設定。";
+                    break;
+                case 'auth/popup-closed-by-user':
+                    errorMsg = "驗證視窗已關閉：您未完成 Google 登入驗證。";
+                    break;
+                default:
+                    errorMsg = error.message || errorMsg;
+            }
+            showToast(errorMsg, "error");
+        }
+    </script>
+</body>
+</html>
