@@ -3,12 +3,12 @@
 Created using JS Bin
 http://jsbin.com
 
-Copyright (c) 2026 by anonymous (http://jsbin.com/jijohirobe/1/edit)
+Copyright (c) 2026 by anonymous (http://jsbin.com/dojetezeki/1/edit)
 
 Released under the MIT license: http://jsbin.mit-license.org
 -->
 <meta name="robots" content="noindex">
-<html lang="zh-TW" class="h-full bg-slate-950">
+<html lang="zh-TW" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,30 +31,30 @@ Released under the MIT license: http://jsbin.mit-license.org
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* 背景流光效果 */
+        /* 背景柔和流光效果 (亮色系專用超低飽和度) */
         .glow-orb {
             position: absolute;
-            width: 500px;
-            height: 500px;
+            width: 600px;
+            height: 600px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(0,0,0,0) 70%);
-            filter: blur(40px);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.03) 50%, rgba(0,0,0,0) 70%);
+            filter: blur(50px);
             z-index: 0;
             pointer-events: none;
         }
     </style>
 </head>
-<body class="h-full flex items-center justify-center overflow-x-hidden relative text-slate-200 px-4">
+<body class="h-full flex items-center justify-center overflow-x-hidden relative text-slate-800 px-4">
 
-    <!-- 炫光背景裝飾 -->
+    <!-- 炫光背景裝飾 (亮色系) -->
     <div class="glow-orb -top-40 -left-40"></div>
     <div class="glow-orb -bottom-40 -right-40"></div>
 
     <!-- 全域 Toast 訊息容器 -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
 
-    <!-- 頂部運行模式提示條 -->
-    <div id="mode-badge" class="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 transition-all duration-300">
+    <!-- 頂部運行模式提示條 (亮色系質感優化) -->
+    <div id="mode-badge" class="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-sm backdrop-blur-md flex items-center gap-2 transition-all duration-300">
         <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2"></span>
@@ -62,65 +62,65 @@ Released under the MIT license: http://jsbin.mit-license.org
         <span id="mode-text">正在偵測系統環境...</span>
     </div>
 
-    <!-- 主容器 -->
-    <main class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl p-8 z-10 transition-all duration-300">
+    <!-- 主容器 (純白高質感卡片) -->
+    <main class="w-full max-w-md bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-xl shadow-slate-100/60 p-8 z-10 transition-all duration-300">
         
         <!-- 標題與 LOGO 區域 -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 text-white text-2xl font-bold shadow-lg shadow-indigo-500/20 mb-4">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2 id="portal-title" class="text-2xl font-bold text-white tracking-tight">登入您的帳戶</h2>
-            <p id="portal-subtitle" class="text-slate-400 text-sm mt-1">請輸入您的電子信箱與密碼</p>
+            <h2 id="portal-title" class="text-2xl font-bold text-slate-900 tracking-tight">登入您的帳戶</h2>
+            <p id="portal-subtitle" class="text-slate-500 text-sm mt-1">請輸入您的電子信箱與密碼</p>
         </div>
 
         <!-- 1. 登入畫面 (Login View) -->
         <section id="view-login" class="fade-in space-y-6">
             <form id="form-login" class="space-y-4" onsubmit="handleEmailLogin(event)">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">電子信箱</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-regular fa-envelope"></i>
                         </span>
-                        <input type="email" id="login-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                        <input type="email" id="login-email" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="name@example.com">
                     </div>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">密碼</label>
-                        <button type="button" onclick="switchView('forgot')" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition">忘記密碼？</button>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">密碼</label>
+                        <button type="button" onclick="switchView('forgot')" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 transition">忘記密碼？</button>
                     </div>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-lock"></i>
                         </span>
-                        <input type="password" id="login-password" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="••••••••">
-                        <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                        <input type="password" id="login-password" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
                             <i class="fa-regular fa-eye" id="login-password-eye"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex items-center">
-                    <input type="checkbox" id="login-remember" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-900 focus:ring-2">
-                    <label for="login-remember" class="ml-2 text-xs text-slate-400">記住我的登入資訊</label>
+                    <input type="checkbox" id="login-remember" class="w-4 h-4 rounded bg-white border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-white focus:ring-2">
+                    <label for="login-remember" class="ml-2 text-xs text-slate-500 font-medium">記住我的登入資訊</label>
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
                     <span id="btn-login-text">登入系統</span>
                     <i id="btn-login-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
                 </button>
             </form>
 
             <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-slate-800"></div>
-                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-500">或使用其他方式登入</span>
-                <div class="flex-grow border-t border-slate-800"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-400">或使用其他方式登入</span>
+                <div class="flex-grow border-t border-slate-200"></div>
             </div>
 
-            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-200 hover:text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-3 text-sm">
+            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-lg shadow-sm transition flex items-center justify-center gap-3 text-sm">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -131,9 +131,9 @@ Released under the MIT license: http://jsbin.mit-license.org
             </button>
 
             <div class="text-center">
-                <p class="text-sm text-slate-400">
+                <p class="text-sm text-slate-500">
                     還沒有帳戶嗎？
-                    <button onclick="switchView('register')" class="text-indigo-400 hover:text-indigo-300 font-medium transition ml-1">註冊新帳號</button>
+                    <button onclick="switchView('register')" class="text-indigo-600 hover:text-indigo-500 font-semibold transition ml-1">註冊新帳號</button>
                 </p>
             </div>
         </section>
@@ -142,64 +142,64 @@ Released under the MIT license: http://jsbin.mit-license.org
         <section id="view-register" class="fade-in space-y-6 hidden">
             <form id="form-register" class="space-y-4" onsubmit="handleEmailRegister(event)">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">您的姓名</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">您的姓名</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-regular fa-user"></i>
                         </span>
-                        <input type="text" id="register-name" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="王小明">
+                        <input type="text" id="register-name" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="王小明">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">電子信箱</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-regular fa-envelope"></i>
                         </span>
-                        <input type="email" id="register-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                        <input type="email" id="register-email" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="name@example.com">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">設定密碼</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">設定密碼</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-lock"></i>
                         </span>
-                        <input type="password" id="register-password" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="至少 6 位字元">
-                        <button type="button" onclick="togglePasswordVisibility('register-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                        <input type="password" id="register-password" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="至少 6 位字元">
+                        <button type="button" onclick="togglePasswordVisibility('register-password')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
                             <i class="fa-regular fa-eye" id="register-password-eye"></i>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">確認密碼</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">確認密碼</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-lock"></i>
                         </span>
-                        <input type="password" id="register-confirm" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="再次輸入密碼">
-                        <button type="button" onclick="togglePasswordVisibility('register-confirm')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300">
+                        <input type="password" id="register-confirm" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="再次輸入密碼">
+                        <button type="button" onclick="togglePasswordVisibility('register-confirm')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
                             <i class="fa-regular fa-eye" id="register-confirm-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
                     <span id="btn-register-text">建立全新帳戶</span>
                     <i id="btn-register-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
                 </button>
             </form>
 
             <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-slate-800"></div>
-                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-500">或快速註冊</span>
-                <div class="flex-grow border-t border-slate-800"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-xs font-semibold uppercase tracking-wider text-slate-400">或快速註冊</span>
+                <div class="flex-grow border-t border-slate-200"></div>
             </div>
 
-            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-200 hover:text-white font-medium py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-3 text-sm">
+            <button type="button" onclick="handleGoogleAuth()" class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-lg shadow-sm transition flex items-center justify-center gap-3 text-sm">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -210,38 +210,38 @@ Released under the MIT license: http://jsbin.mit-license.org
             </button>
 
             <div class="text-center">
-                <p class="text-sm text-slate-400">
+                <p class="text-sm text-slate-500">
                     已經有帳戶了？
-                    <button onclick="switchView('login')" class="text-indigo-400 hover:text-indigo-300 font-medium transition ml-1">立即登入</button>
+                    <button onclick="switchView('login')" class="text-indigo-600 hover:text-indigo-500 font-semibold transition ml-1">立即登入</button>
                 </p>
             </div>
         </section>
 
         <!-- 3. 忘記密碼畫面 (Forgot Password View) -->
         <section id="view-forgot" class="fade-in space-y-6 hidden">
-            <p class="text-slate-400 text-sm text-center">
+            <p class="text-slate-500 text-sm text-center leading-relaxed">
                 請輸入您註冊時填寫的電子信箱，系統將發送一封密碼重設鏈接至您的信箱。
             </p>
 
             <form id="form-forgot" class="space-y-4" onsubmit="handleForgotPassword(event)">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">電子信箱</label>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">電子信箱</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-regular fa-envelope"></i>
                         </span>
-                        <input type="email" id="forgot-email" required class="w-full bg-slate-950/50 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 outline-none transition" placeholder="name@example.com">
+                        <input type="email" id="forgot-email" required class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition" placeholder="name@example.com">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 text-sm">
                     <span id="btn-forgot-text">發送重設郵件</span>
                     <i id="btn-forgot-spinner" class="fa-solid fa-circle-notch animate-spin hidden"></i>
                 </button>
             </form>
 
             <div class="text-center">
-                <button onclick="switchView('login')" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition flex items-center justify-center gap-2 mx-auto">
+                <button onclick="switchView('login')" class="text-sm text-indigo-600 hover:text-indigo-500 font-semibold transition flex items-center justify-center gap-2 mx-auto">
                     <i class="fa-solid fa-arrow-left"></i> 返回登入畫面
                 </button>
             </div>
@@ -249,17 +249,17 @@ Released under the MIT license: http://jsbin.mit-license.org
 
         <!-- 4. 信箱驗證待定畫面 (Verification Pending View) -->
         <section id="view-verify-pending" class="fade-in text-center space-y-6 hidden">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-500/10 text-yellow-500 text-3xl mb-2">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 text-3xl mb-2">
                 <i class="fa-regular fa-envelope-open"></i>
             </div>
             
             <div class="space-y-2">
-                <h3 class="text-lg font-semibold text-white">驗證信件已寄出</h3>
-                <p class="text-sm text-slate-400 leading-relaxed px-2">
+                <h3 class="text-lg font-semibold text-slate-900">驗證信件已寄出</h3>
+                <p class="text-sm text-slate-500 leading-relaxed px-2">
                     我們已發送一封驗證電子郵件至：<br>
-                    <strong id="verify-email-display" class="text-indigo-300"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80f5f3e5f2c0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></strong>
+                    <strong id="verify-email-display" class="text-indigo-600"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1065637562507568717d607c753e737f7d">[email&#160;protected]</a></strong>
                 </p>
-                <p class="text-xs text-yellow-500/90 bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2.5 mt-2">
+                <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-2">
                     請點選信中的連結以完成啟用。若已完成，請點選下方按鈕重新整理狀態。
                 </p>
             </div>
@@ -269,13 +269,13 @@ Released under the MIT license: http://jsbin.mit-license.org
                     <i class="fa-solid fa-rotate"></i> 我已完成驗證，前往登入
                 </button>
 
-                <button onclick="resendVerificationEmail()" class="w-full bg-slate-950/50 hover:bg-slate-950 border border-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-lg transition text-sm">
+                <button onclick="resendVerificationEmail()" class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-medium py-2.5 px-4 rounded-lg shadow-sm transition text-sm">
                     重新發送驗證信件
                 </button>
             </div>
 
             <div class="text-center pt-2">
-                <button onclick="handleLogout(true)" class="text-sm text-slate-400 hover:text-slate-300 font-medium transition flex items-center justify-center gap-2 mx-auto">
+                <button onclick="handleLogout(true)" class="text-sm text-slate-500 hover:text-slate-800 font-semibold transition flex items-center justify-center gap-2 mx-auto">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> 登出並返回
                 </button>
             </div>
@@ -284,43 +284,43 @@ Released under the MIT license: http://jsbin.mit-license.org
         <!-- 5. 登入成功畫面 (Dashboard View) -->
         <section id="view-dashboard" class="fade-in space-y-6 hidden">
             <!-- 成功提示橫幅 -->
-            <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-start gap-3">
-                <div class="text-emerald-500 mt-0.5"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+                <div class="text-emerald-600 mt-0.5"><i class="fa-solid fa-circle-check"></i></div>
                 <div>
-                    <h4 class="text-sm font-semibold text-emerald-400">登入驗證成功</h4>
-                    <p class="text-xs text-slate-400 mt-0.5">歡迎使用本系統，您目前已安全登入！</p>
+                    <h4 class="text-sm font-bold text-emerald-800">登入驗證成功</h4>
+                    <p class="text-xs text-slate-600 mt-0.5">歡迎使用本系統，您目前已安全登入！</p>
                 </div>
             </div>
 
             <!-- 用戶資訊卡片 -->
-            <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-5 space-y-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
                 <div class="flex items-center gap-4">
                     <div id="user-avatar-container" class="relative">
-                        <img id="user-avatar" src="https://placehold.co/100x100/6366f1/ffffff?text=U" alt="Avatar" class="w-14 h-14 rounded-full border border-slate-800 object-cover">
-                        <div id="user-status-dot" class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-slate-900 bg-emerald-500"></div>
+                        <img id="user-avatar" src="https://placehold.co/100x100/6366f1/ffffff?text=U" alt="Avatar" class="w-14 h-14 rounded-full border border-slate-200 object-cover bg-white">
+                        <div id="user-status-dot" class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white bg-emerald-500"></div>
                     </div>
                     <div>
                         <div class="flex items-center gap-1.5 flex-wrap">
-                            <h4 id="user-display-name" class="font-bold text-white text-base">用戶姓名</h4>
-                            <span id="user-verified-badge" class="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-[10px] font-semibold rounded-md">已驗證</span>
+                            <h4 id="user-display-name" class="font-bold text-slate-900 text-base">用戶姓名</h4>
+                            <span id="user-verified-badge" class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-semibold rounded-md">已驗證</span>
                         </div>
-                        <p id="user-email-text" class="text-xs text-slate-400"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="83f6f0e6f1c3e6fbe2eef3efe6ade0ecee">[email&#160;protected]</a></p>
+                        <p id="user-email-text" class="text-xs text-slate-500"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="631610061123061b020e130f064d000c0e">[email&#160;protected]</a></p>
                     </div>
                 </div>
 
-                <div class="border-t border-slate-800 pt-3 space-y-2 text-xs">
+                <div class="border-t border-slate-200 pt-3 space-y-2 text-xs">
                     <div class="flex justify-between">
                         <span class="text-slate-500">登入方式</span>
-                        <span id="user-provider-badge" class="font-medium text-slate-300">電子信箱</span>
+                        <span id="user-provider-badge" class="font-medium text-slate-700">電子信箱</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">唯一用戶碼 (UID)</span>
-                        <span id="user-uid-text" class="font-mono text-slate-400 text-[11px] truncate max-w-[180px]">xxxxxxxx</span>
+                        <span id="user-uid-text" class="font-mono text-slate-600 text-[11px] truncate max-w-[180px]">xxxxxxxx</span>
                     </div>
                 </div>
             </div>
 
-            <button onclick="handleLogout()" class="w-full bg-rose-600/10 hover:bg-rose-600/20 border border-rose-500/20 text-rose-400 font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-sm">
+            <button onclick="handleLogout()" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-sm">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i> 安全登出系統
             </button>
         </section>
@@ -347,12 +347,12 @@ Released under the MIT license: http://jsbin.mit-license.org
         // Firebase 設定區 (供您填入真實資料)
         // ==========================================
         const firebaseConfig = {
-          apiKey: "AIzaSyCRG5iqTUDUgNT7FxDacn0Uc2O5R0vsMc4",
-          authDomain: "ctcn-login.firebaseapp.com",
-          projectId: "ctcn-login",
-          storageBucket: "ctcn-login.firebasestorage.app",
-          messagingSenderId: "648233489932",
-          appId: "1:648233489932:web:b13b15eefe50ba18758029"
+            apiKey: "YOUR_API_KEY_HERE_MOCK_VAL",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         // ==========================================
@@ -388,12 +388,12 @@ Released under the MIT license: http://jsbin.mit-license.org
             }
         });
 
-        // 啟用 Demo 模擬模式
+        // 啟用 Demo 模擬模式 (亮色系)
         function enableDemoMode() {
             isDemoMode = true;
             const badge = document.getElementById('mode-badge');
             const badgeText = document.getElementById('mode-text');
-            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20";
+            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-sm backdrop-blur-md flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200/80";
             badgeText.textContent = "Demo 模擬模式 (非真實 Firebase)";
             showToast("已切換至 Demo 模擬模式！", "info");
 
@@ -401,12 +401,12 @@ Released under the MIT license: http://jsbin.mit-license.org
             initializeDemoMock();
         }
 
-        // 啟用真實 Firebase 運作模式
+        // 啟用真實 Firebase 運作模式 (亮色系)
         function enableRealMode() {
             isDemoMode = false;
             const badge = document.getElementById('mode-badge');
             const badgeText = document.getElementById('mode-text');
-            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-lg backdrop-blur-md flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            badge.className = "fixed top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider shadow-sm backdrop-blur-md flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200/80";
             badgeText.textContent = "已連線至您的 Firebase 服務";
             showToast("成功連線至 Firebase Authentication！", "success");
         }
@@ -516,7 +516,6 @@ Released under the MIT license: http://jsbin.mit-license.org
                     
                     showToast("註冊成功，認證郵件已發送！", "success");
                     setLoading('register', false);
-                    // 註冊後會觸發 onAuthStateChanged
                 } catch (error) {
                     console.error(error);
                     setLoading('register', false);
@@ -699,7 +698,6 @@ Released under the MIT license: http://jsbin.mit-license.org
                 try {
                     await signOut(auth);
                     if (!isSilent) showToast("您已安全登出系統。", "info");
-                    // 登出會自動觸發 onAuthStateChanged
                 } catch (error) {
                     console.error(error);
                     showToast("登出程序發生未知異常！", "error");
@@ -806,10 +804,10 @@ Released under the MIT license: http://jsbin.mit-license.org
             
             // 是否驗證
             if (user.emailVerified) {
-                verifiedBadge.className = "px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold rounded-md";
+                verifiedBadge.className = "px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold rounded-md";
                 verifiedBadge.textContent = "已驗證";
             } else {
-                verifiedBadge.className = "px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[10px] font-semibold rounded-md";
+                verifiedBadge.className = "px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-semibold rounded-md";
                 verifiedBadge.textContent = "未驗證";
             }
 
@@ -854,39 +852,39 @@ Released under the MIT license: http://jsbin.mit-license.org
             }
         };
 
-        // Toast 彈出式客製化訊息通知
+        // Toast 彈出式客製化訊息通知 (亮色系高雅設計)
         window.showToast = function(message, type = 'info') {
             const container = document.getElementById('toast-container');
             
             const toast = document.createElement('div');
-            toast.className = "fade-in flex items-center gap-3 p-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300";
+            toast.className = "fade-in flex items-center gap-3 p-4 rounded-xl shadow-lg border backdrop-blur-md transition-all duration-300 bg-white/95";
             
             let icon = '';
             let classes = '';
             
             switch (type) {
                 case 'success':
-                    icon = '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>';
-                    classes = 'bg-emerald-950/85 border-emerald-500/30 text-emerald-200';
+                    icon = '<i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i>';
+                    classes = 'border-emerald-200 text-slate-800 shadow-emerald-100/30';
                     break;
                 case 'error':
-                    icon = '<i class="fa-solid fa-triangle-exclamation text-rose-400 text-lg"></i>';
-                    classes = 'bg-rose-950/85 border-rose-500/30 text-rose-200';
+                    icon = '<i class="fa-solid fa-triangle-exclamation text-rose-500 text-lg"></i>';
+                    classes = 'border-rose-200 text-slate-800 shadow-rose-100/30';
                     break;
                 case 'warning':
-                    icon = '<i class="fa-solid fa-circle-exclamation text-yellow-400 text-lg"></i>';
-                    classes = 'bg-yellow-950/85 border-yellow-500/30 text-yellow-200';
+                    icon = '<i class="fa-solid fa-circle-exclamation text-amber-500 text-lg"></i>';
+                    classes = 'border-amber-200 text-slate-800 shadow-amber-100/30';
                     break;
                 default:
-                    icon = '<i class="fa-solid fa-circle-info text-blue-400 text-lg"></i>';
-                    classes = 'bg-slate-900/90 border-indigo-500/30 text-indigo-200';
+                    icon = '<i class="fa-solid fa-circle-info text-blue-500 text-lg"></i>';
+                    classes = 'border-slate-200 text-slate-800 shadow-slate-100/30';
             }
             
             toast.className += ` ${classes}`;
             toast.innerHTML = `
                 ${icon}
-                <div class="text-xs font-medium flex-1">${message}</div>
-                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition">
+                <div class="text-xs font-semibold flex-1">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 transition">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             `;
